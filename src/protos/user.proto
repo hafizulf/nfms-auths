@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package user;
+
+message FindUserByEmailRequest {
+  string email = 1;
+}
+
+message UserPublic {
+  string id = 1;
+  string name = 2;
+  string email = 3;
+  string created_at = 4;
+  string updated_at = 5;
+}
+
+message FindUserByEmailResponse {
+  UserPublic user = 1;
+}
+
+service UserService {
+  rpc FindUserByEmail(FindUserByEmailRequest) returns (FindUserByEmailResponse) {}
+}
