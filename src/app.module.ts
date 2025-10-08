@@ -8,6 +8,8 @@ import {
   formatEnvErrors 
 } from './config/env-validation.config';
 import { AuthModule } from './modules/auths/auth.module';
+import { APP_FILTER } from '@nestjs/core';
+import { AppExceptionHttpFilter } from './filters/app-exception.filter';
 
 @Module({
   imports: [
@@ -30,6 +32,12 @@ import { AuthModule } from './modules/auths/auth.module';
     AuthModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    AppService,
+    { 
+      provide: APP_FILTER, 
+      useClass: AppExceptionHttpFilter, 
+    },
+  ],
 })
 export class AppModule {}

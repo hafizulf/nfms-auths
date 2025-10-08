@@ -2,22 +2,19 @@ syntax = "proto3";
 
 package user;
 
-message FindUserByEmailRequest {
+message VerifyCredentialsRequest {
   string email = 1;
+  string password = 2;
 }
 
-message UserPublic {
-  string id = 1;
-  string name = 2;
-  string email = 3;
-  string created_at = 4;
-  string updated_at = 5;
+message PayloadCredentials {
+  string sub = 1;
 }
 
-message FindUserByEmailResponse {
-  UserPublic user = 1;
+message VerifyCredentialsResponse {
+  PayloadCredentials user = 1;
 }
 
 service UserService {
-  rpc FindUserByEmail(FindUserByEmailRequest) returns (FindUserByEmailResponse) {}
+  rpc VerifyCredentials(VerifyCredentialsRequest) returns (VerifyCredentialsResponse) {}
 }
