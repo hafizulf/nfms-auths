@@ -14,6 +14,10 @@ export const EnvValidationSchema = z.object({
     .transform(Number),
 
   USERS_GRPC_URL: z.string(),
+  JWT_SECRET: z.string(),
+  JWT_EXPIRATION_TIME: z.string(),
+  JWT_REFRESH_SECRET: z.string(),
+  JWT_REFRESH_EXPIRATION_TIME: z.string(),
 });
 
 export const EnvValidationOptions = {

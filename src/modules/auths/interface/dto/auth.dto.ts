@@ -8,3 +8,10 @@ export class LoginRequest {
   @IsNotEmpty()
   password: string;
 }
+
+export class LoginTokenResponse {
+  accessToken: string;
+  refreshToken: string;
+  accessTokenExpiresAt: number;
+  refreshTokenExpiresAt: number;
+}

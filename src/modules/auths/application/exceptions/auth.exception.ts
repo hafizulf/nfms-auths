@@ -1,0 +1,27 @@
+import { HttpStatus } from "@nestjs/common";
+import { AppException } from "./app.exception";
+import { ERROR_CODES } from "./auth-error-codes.exception";
+
+export class InvalidCredentialsException extends AppException {
+  constructor() {
+    super(ERROR_CODES.INVALID_CREDENTIALS,  `Invalid credentials`, HttpStatus.UNAUTHORIZED);
+  }
+}
+
+export class ServiceUnavailableException extends AppException {
+  constructor(serviceName: string) {
+    super(ERROR_CODES.SERVICE_UNAVAILABLE, `${serviceName} Service Unavailable`, HttpStatus.SERVICE_UNAVAILABLE);
+  }
+}
+
+export class GatewayTimeoutException extends AppException {
+  constructor(serviceName: string) {
+    super(ERROR_CODES.SERVICE_TIMEOUT, `${serviceName} Service Timeout`, HttpStatus.GATEWAY_TIMEOUT);
+  }
+}
+
+export class BadGatewayException extends AppException {
+  constructor() {
+    super(ERROR_CODES.UPSTREAM_ERROR, `Upstream error`, HttpStatus.BAD_GATEWAY);
+  }
+}

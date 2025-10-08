@@ -1,6 +1,8 @@
-import { Body, Controller, Post } from "@nestjs/common";
-import { LoginRequest } from "./dto/auth.dto";
+import { Body, Controller, Post, Res } from "@nestjs/common";
+import { LoginRequest, LoginTokenResponse } from "./dto/auth.dto";
 import { AuthService } from "../application/services/auth.service";
+import type { FastifyReply } from "fastify";
+import { StandardResponseDto } from "src/modules/common/dto/standard-response.dto";
 
 @Controller()
 export class AuthHttpController {
@@ -11,7 +13,31 @@ export class AuthHttpController {
   @Post('login')
   async login(
     @Body() request: LoginRequest,
-  ): Promise<void> {
-    await this._authService.login(request);
+    @Res({ passthrough: true }) res: FastifyReply,
+  ): Promise<StandardResponseDto<
+    Omit<LoginTokenResponse, 'refreshToken' | 'refreshTokenExpiresAt'>>
+  > {
+    const result = await this._authService.login(request);
+    const { accessToken, accessTokenExpiresAt, refreshToken, refreshTokenExpiresAt } = result;
+
+    // set cookie refresh token
+    const nowSec = Math.floor(Date.now() / 1000);
+    const maxAgeSec = Math.max(0, refreshTokenExpiresAt - nowSec);
+    res.setCookie('rtid', refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'lax',
+      path: '/',
+      maxAge: maxAgeSec,
+    });
+
+    return {
+      statusCode: 200,
+      message: 'success',
+      data: {
+        accessToken,
+        accessTokenExpiresAt,
+      }
+    }
   }
 }
