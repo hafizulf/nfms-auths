@@ -1,0 +1,3 @@
+export const REPOSITORY_TYPES = {
+  TOKEN_REPOSITORY: Symbol.for('TOKEN_REPOSITORY'),
+};

@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Res } from "@nestjs/common";
+import { Body, Controller, HttpCode, HttpStatus, Post, Res } from "@nestjs/common";
 import { LoginRequest, LoginTokenResponse } from "./dto/auth.dto";
 import { AuthService } from "../application/services/auth.service";
 import type { FastifyReply } from "fastify";
@@ -11,6 +11,7 @@ export class AuthHttpController {
   ) {}
 
   @Post('login')
+  @HttpCode(HttpStatus.OK)
   async login(
     @Body() request: LoginRequest,
     @Res({ passthrough: true }) res: FastifyReply,

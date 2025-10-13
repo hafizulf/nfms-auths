@@ -6,6 +6,9 @@ import { LoginRequest, LoginTokenResponse } from "../../interface/dto/auth.dto";
 import { ServiceError, status } from "@grpc/grpc-js";
 import { BadGatewayException, GatewayTimeoutException, InvalidCredentialsException, ServiceUnavailableException } from "../exceptions/auth.exception";
 import { JWTService } from "src/modules/common/jwt/jwt.service";
+import { uuidv7 } from "uuidv7";
+import { CommandBus } from "@nestjs/cqrs";
+import { CreateTokenCommand } from "../command/create-token.command";
 
 interface UsersServiceClient {
   verifyCredentials(data: { email: string; password: string }): Observable<verifyCredentialsResponse>;
@@ -18,6 +21,7 @@ export class AuthService implements OnModuleInit {
   constructor(
     @Inject('USERS_GRPC') private readonly _client: ClientGrpc,
     private readonly _jwtService: JWTService,
+    private readonly _commandBus: CommandBus,
   ) {}
 
   onModuleInit() {
@@ -34,6 +38,14 @@ export class AuthService implements OnModuleInit {
       const userData = data.user;
       const { token: accessToken, expiresAt: accessExp } =  this._jwtService.signAccess({ sub: userData.sub });
       const { token: refreshToken, expiresAt: refreshExp } = this._jwtService.signRefresh({ sub: userData.sub });
+      const payload = {
+        id: uuidv7(),
+        user_id: userData.sub,
+        token: refreshToken,
+        is_revoked: false,
+      }
+
+      await this._commandBus.execute(new CreateTokenCommand(payload));
 
       return {
         accessToken,

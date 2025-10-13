@@ -10,11 +10,12 @@ datasource db {
 
 model Token {
   id          String    @id @default(uuid())
-  user_id     String
+  user_id     String    @db.VarChar(100)
   token       String    @unique
   is_revoked  Boolean   @default(false)
   created_at  DateTime  @default(now())
   updated_at  DateTime  @updatedAt
 
+  @@unique([user_id])
   @@map("tokens")
 }

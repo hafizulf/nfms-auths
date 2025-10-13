@@ -15,3 +15,10 @@ export class LoginTokenResponse {
   accessTokenExpiresAt: number;
   refreshTokenExpiresAt: number;
 }
+
+export class CreateTokenPayload {
+  id: string;
+  user_id: string;
+  token: string;
+  is_revoked: boolean;
+}
