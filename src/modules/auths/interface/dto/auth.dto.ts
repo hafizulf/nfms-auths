@@ -22,3 +22,21 @@ export class CreateTokenPayload {
   token: string;
   is_revoked: boolean;
 }
+
+export class RegisterRequest {
+  @IsNotEmpty()
+  name: string;
+
+  @IsNotEmpty()
+  @IsEmail()
+  email: string;
+
+  @IsNotEmpty()
+  password: string;
+}
+
+export class RegisterResponse {
+  id: string;
+  name: string;
+  email: string;
+}

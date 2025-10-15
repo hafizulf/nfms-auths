@@ -31,3 +31,9 @@ export class BadRequestException extends AppException {
     super(ERROR_CODES.BAD_REQUEST, message, HttpStatus.BAD_REQUEST);
   }
 }
+
+export class ConflictException extends AppException {
+  constructor(message: string) {
+    super(ERROR_CODES.CONFLICT, message, HttpStatus.CONFLICT);
+  }
+}

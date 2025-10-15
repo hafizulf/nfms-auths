@@ -1,5 +1,5 @@
 import { Body, Controller, HttpCode, HttpStatus, Post, Res } from "@nestjs/common";
-import { LoginRequest, LoginTokenResponse } from "./dto/auth.dto";
+import { LoginRequest, LoginTokenResponse, RegisterRequest, RegisterResponse } from "./dto/auth.dto";
 import { AuthService } from "../application/services/auth.service";
 import type { FastifyReply } from "fastify";
 import { StandardResponseDto } from "src/modules/common/dto/standard-response.dto";
@@ -58,5 +58,19 @@ export class AuthHttpController {
       sameSite: 'lax',
       path: '/',
     });
+  }
+
+  @Post('register')
+  @HttpCode(HttpStatus.CREATED)
+  async register(
+    @Body() request: RegisterRequest,
+  ): Promise<StandardResponseDto<RegisterResponse>> {
+    const registeredUser = await this._authService.register(request);
+
+    return {
+      statusCode: 201,
+      message: 'success',
+      data: registeredUser,
+    }
   }
 }
