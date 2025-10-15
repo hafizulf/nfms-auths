@@ -3,6 +3,8 @@ import { LoginRequest, LoginTokenResponse } from "./dto/auth.dto";
 import { AuthService } from "../application/services/auth.service";
 import type { FastifyReply } from "fastify";
 import { StandardResponseDto } from "src/modules/common/dto/standard-response.dto";
+import { RefreshTokenConst } from "src/modules/common/const/token.const";
+import { RefreshTokenCookie } from "src/decorators/refresh-token-cookie.decorator";
 
 @Controller()
 export class AuthHttpController {
@@ -24,7 +26,7 @@ export class AuthHttpController {
     // set cookie refresh token
     const nowSec = Math.floor(Date.now() / 1000);
     const maxAgeSec = Math.max(0, refreshTokenExpiresAt - nowSec);
-    res.setCookie('rtid', refreshToken, {
+    res.setCookie(RefreshTokenConst.COOKIE_ID, refreshToken, {
       httpOnly: true,
       secure: true,
       sameSite: 'lax',
@@ -40,5 +42,21 @@ export class AuthHttpController {
         accessTokenExpiresAt,
       }
     }
+  }
+
+  @Post('logout')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async logout(
+    @RefreshTokenCookie(true) refreshToken: string,
+    @Res({ passthrough: true }) res: FastifyReply,
+  ): Promise<void> {
+    await this._authService.logout(refreshToken);
+
+    res.clearCookie(RefreshTokenConst.COOKIE_ID, {
+      httpOnly: true,
+      secure: true,
+      sameSite: 'lax',
+      path: '/',
+    });
   }
 }

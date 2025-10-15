@@ -1,0 +1,5 @@
+export const RefreshTokenConst = {
+  JWT_REFRESH_SECRET: 'JWT_REFRESH_SECRET',
+  JWT_REFRESH_EXPIRATION_TIME: 'JWT_REFRESH_EXPIRATION_TIME',
+  COOKIE_ID: 'rtid',
+} as const;

@@ -9,6 +9,7 @@ import { JWTService } from "src/modules/common/jwt/jwt.service";
 import { uuidv7 } from "uuidv7";
 import { CommandBus } from "@nestjs/cqrs";
 import { CreateTokenCommand } from "../command/create-token.command";
+import { RevokeTokenCommand } from "../command/revoke-token.command";
 
 interface UsersServiceClient {
   verifyCredentials(data: { email: string; password: string }): Observable<verifyCredentialsResponse>;
@@ -56,6 +57,12 @@ export class AuthService implements OnModuleInit {
     } catch (err) {
       this.mapGrpcToHttp(err as ServiceError);
     }
+  }
+
+  async logout(
+    refreshToken: string,
+  ): Promise<void> {
+    await this._commandBus.execute(new RevokeTokenCommand(refreshToken));
   }
 
   private mapGrpcToHttp(err: ServiceError): never {

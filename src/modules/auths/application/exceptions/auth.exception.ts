@@ -25,3 +25,9 @@ export class BadGatewayException extends AppException {
     super(ERROR_CODES.UPSTREAM_ERROR, `Upstream error`, HttpStatus.BAD_GATEWAY);
   }
 }
+
+export class BadRequestException extends AppException {
+  constructor(message: string) {
+    super(ERROR_CODES.BAD_REQUEST, message, HttpStatus.BAD_REQUEST);
+  }
+}

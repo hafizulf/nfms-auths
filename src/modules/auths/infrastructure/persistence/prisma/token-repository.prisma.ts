@@ -17,4 +17,11 @@ export class TokenRepositoryPrisma implements TokenRepository {
     });
     return TokenMapper.fromPrisma(rec);
   }
+
+  async revoke(refreshToken: string): Promise<void> {
+    await this.prisma.token.update({
+      where: { token: refreshToken },
+      data: { is_revoked: true },
+    });
+  }
 }
