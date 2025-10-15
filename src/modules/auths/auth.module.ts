@@ -8,12 +8,14 @@ import { AuthHandlers } from "./application/handlers";
 import { REPOSITORY_TYPES } from "./infrastructure/persistence/repository/repository.types";
 import { TokenRepositoryPrisma } from "./infrastructure/persistence/prisma/token-repository.prisma";
 import { PrismaService } from "../prisma/services/prisma.service";
+import { CommonModule } from "../common/common.module";
 
 @Module({
   imports: [
     UsersGrpcModule,
     JWTModule,
     CqrsModule,
+    CommonModule,
   ],
   controllers: [
     AuthHttpController,

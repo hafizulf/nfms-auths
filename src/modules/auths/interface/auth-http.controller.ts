@@ -1,12 +1,14 @@
-import { Body, Controller, HttpCode, HttpStatus, Post, Res } from "@nestjs/common";
+import { Body, Controller, HttpCode, HttpStatus, Post, Res, UseFilters } from "@nestjs/common";
 import { LoginRequest, LoginTokenResponse, RegisterRequest, RegisterResponse } from "./dto/auth.dto";
 import { AuthService } from "../application/services/auth.service";
 import type { FastifyReply } from "fastify";
 import { StandardResponseDto } from "src/modules/common/dto/standard-response.dto";
 import { RefreshTokenConst } from "src/modules/common/const/token.const";
 import { RefreshTokenCookie } from "src/decorators/refresh-token-cookie.decorator";
+import { GrpcToHttpFilter } from "src/filters/grpc-to-http.filter";
 
 @Controller()
+@UseFilters(GrpcToHttpFilter)
 export class AuthHttpController {
   constructor(
     private readonly _authService: AuthService,
