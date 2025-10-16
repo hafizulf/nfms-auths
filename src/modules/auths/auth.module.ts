@@ -8,13 +8,17 @@ import { AuthHandlers } from "./application/handlers";
 import { REPOSITORY_TYPES } from "./infrastructure/persistence/repository/repository.types";
 import { TokenRepositoryPrisma } from "./infrastructure/persistence/prisma/token-repository.prisma";
 import { PrismaService } from "../prisma/services/prisma.service";
-import { CommonModule } from "../common/common.module";
+import { OneTimeTokenRepositoryPrisma } from "./infrastructure/persistence/prisma/one-time-token-repository.prisma";
+import { AuthVerificationService } from "./application/services/auth-verification.service";
+import { TokenFactory } from "./application/services/token.factory";
+import { RabbitMQInfraModule } from "./infrastructure/rabbitmq/rabbitmq-infra.module";
 
 @Module({
   imports: [
     UsersGrpcModule,
     JWTModule,
     CqrsModule,
+    RabbitMQInfraModule,
   ],
   controllers: [
     AuthHttpController,
@@ -24,7 +28,13 @@ import { CommonModule } from "../common/common.module";
       provide: REPOSITORY_TYPES.TOKEN_REPOSITORY,
       useClass: TokenRepositoryPrisma,
     },
+    {
+      provide: REPOSITORY_TYPES.ONE_TIME_TOKEN_REPOSITORY,
+      useClass: OneTimeTokenRepositoryPrisma,
+    },
     PrismaService,
+    TokenFactory,
+    AuthVerificationService,
     AuthService,
     ...AuthHandlers,
   ],

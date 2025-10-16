@@ -18,6 +18,9 @@ export const EnvValidationSchema = z.object({
   JWT_EXPIRATION_TIME: z.string(),
   JWT_REFRESH_SECRET: z.string(),
   JWT_REFRESH_EXPIRATION_TIME: z.string(),
+
+  EMAIL_VERIFY_URL: z.string(),
+  RABBITMQ_URI: z.string(),
 });
 
 export const EnvValidationOptions = {

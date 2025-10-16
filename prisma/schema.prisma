@@ -19,3 +19,22 @@ model Token {
   @@unique([user_id])
   @@map("tokens")
 }
+
+enum TokenPurpose {
+  REGISTER
+  FORGOT_PASSWORD
+}
+
+model OneTimeToken {
+  id         String      @id @default(uuid())
+  user_id     String
+  purpose    TokenPurpose
+  token_hash  Bytes
+  expires_at  DateTime
+  used_at     DateTime?
+  created_at  DateTime    @default(now())
+
+  @@unique([purpose, token_hash])
+  @@index([user_id, purpose, expires_at])
+  @@map("one_time_tokens")
+}
