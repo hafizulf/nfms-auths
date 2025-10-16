@@ -2,10 +2,13 @@ import { Module } from '@nestjs/common';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { join } from 'path';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { UserGrpcService } from './users-grpc.service';
+import { CommonModule } from '../common/common.module';
 
 @Module({
   imports: [
     ConfigModule,
+    CommonModule,
     ClientsModule.registerAsync([
       {
         name: 'USERS_GRPC',
@@ -22,6 +25,10 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       },
     ]),
   ],
-  exports: [ClientsModule],
+  providers: [UserGrpcService],
+  exports: [
+    ClientsModule,
+    UserGrpcService,
+  ],
 })
 export class UsersGrpcModule {}

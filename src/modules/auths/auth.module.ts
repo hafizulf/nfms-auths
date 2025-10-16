@@ -15,7 +15,6 @@ import { CommonModule } from "../common/common.module";
     UsersGrpcModule,
     JWTModule,
     CqrsModule,
-    CommonModule,
   ],
   controllers: [
     AuthHttpController,

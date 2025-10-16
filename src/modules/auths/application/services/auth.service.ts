@@ -1,6 +1,5 @@
 import { RegisterUserResponse, VerifyCredentialsResponse } from "src/modules/users-grpc/users.dto";
-import {Inject, Injectable, OnModuleInit } from "@nestjs/common";
-import type { ClientGrpc } from "@nestjs/microservices";
+import { Injectable } from "@nestjs/common";
 import { Observable } from "rxjs";
 import { LoginRequest, LoginTokenResponse, RegisterRequest, RegisterResponse } from "../../interface/dto/auth.dto";
 import { JWTService } from "src/modules/common/jwt/jwt.service";
@@ -8,7 +7,7 @@ import { uuidv7 } from "uuidv7";
 import { CommandBus } from "@nestjs/cqrs";
 import { CreateTokenCommand } from "../command/create-token.command";
 import { RevokeTokenCommand } from "../command/revoke-token.command";
-import { GrpcClientHelper } from "src/helpers/grpc-client.helper";
+import { UserGrpcService } from "src/modules/users-grpc/users-grpc.service";
 
 interface UsersServiceClient {
   VerifyCredentials(data: { email: string; password: string }): Observable<VerifyCredentialsResponse>;
@@ -16,25 +15,17 @@ interface UsersServiceClient {
 }
 
 @Injectable()
-export class AuthService implements OnModuleInit {
-  private users!: UsersServiceClient;
-  private userService: string = 'Users Service';
-
+export class AuthService {
   constructor(
-    @Inject('USERS_GRPC') private readonly _client: ClientGrpc,
     private readonly _jwtService: JWTService,
     private readonly _commandBus: CommandBus,
-    private readonly grpc: GrpcClientHelper,
+    private readonly userGrpcService: UserGrpcService,
   ) {}
-
-  onModuleInit() {
-    this.users = this._client.getService<UsersServiceClient>('UserService');  
-  }
 
   async login(
     body: LoginRequest,
   ): Promise<LoginTokenResponse> {
-    const data = await this.grpc.call<VerifyCredentialsResponse>(this.userService, this.users.VerifyCredentials(body));
+    const data = await this.userGrpcService.VerifyCredentials(body);
     const userData = data.user;
     const { token: accessToken, expiresAt: accessExp } =  this._jwtService.signAccess({ sub: userData.sub });
     const { token: refreshToken, expiresAt: refreshExp } = this._jwtService.signRefresh({ sub: userData.sub });
@@ -64,8 +55,11 @@ export class AuthService implements OnModuleInit {
   async register(
     body: RegisterRequest,
   ): Promise<RegisterResponse> {
-    const data = await this.grpc.call<RegisterUserResponse>(this.userService, this.users.RegisterUser(body));
+    const data = await this.userGrpcService.RegisterUser(body);
     const user = data.user;
+    
+    // send email verification message to rabbit - publish
+    // then commmit db transaction (in this case after succeeding to register user)
 
     return {
       id: user.id,
