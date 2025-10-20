@@ -26,9 +26,9 @@ enum TokenPurpose {
 }
 
 model OneTimeToken {
-  id         String      @id @default(uuid())
+  id          String      @id @default(uuid())
   user_id     String
-  purpose    TokenPurpose
+  purpose     TokenPurpose
   token_hash  Bytes
   expires_at  DateTime
   used_at     DateTime?

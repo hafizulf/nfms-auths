@@ -3,8 +3,8 @@ import { AppException } from "./app.exception";
 import { ERROR_CODES } from "./auth-error-codes.exception";
 
 export class InvalidCredentialsException extends AppException {
-  constructor() {
-    super(ERROR_CODES.INVALID_CREDENTIALS,  `Invalid credentials`, HttpStatus.UNAUTHORIZED);
+  constructor(message: string) {
+    super(ERROR_CODES.INVALID_CREDENTIALS, message, HttpStatus.UNAUTHORIZED);
   }
 }
 

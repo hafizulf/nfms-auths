@@ -20,4 +20,8 @@ export class TokenFactory {
     url.searchParams.set('purpose', purpose);
     return url.toString();
   }
+
+  hasher(raw: string): Buffer {
+    return createHash('sha256').update(raw).digest(); 
+  }
 }

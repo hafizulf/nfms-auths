@@ -18,7 +18,10 @@ import { CommonModule } from '../common/common.module';
           options: {
             url: configService.get<string>('USERS_GRPC_URL'),
             package: 'user',
-            protoPath: join(__dirname, '../../protos/user.proto'),
+            protoPath: join(__dirname, '../../protos/user/user.proto'),
+            loader: {
+              keepCase: true,
+            }
           }
         }),
         inject: [ConfigService],

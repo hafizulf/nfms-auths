@@ -48,7 +48,7 @@ export class GrpcToHttpFilter implements ExceptionFilter {
 
       case status.NOT_FOUND:
       case status.UNAUTHENTICATED:
-        return new InvalidCredentialsException();
+        return new InvalidCredentialsException(msg ?? 'Invalid credentials');
 
       case status.UNAVAILABLE:
         return new ServiceUnavailableException(serviceName);

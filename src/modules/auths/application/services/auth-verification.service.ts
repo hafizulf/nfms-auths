@@ -1,17 +1,23 @@
 import { Injectable } from "@nestjs/common";
 import { IssueEmailTokenParams, EmailPurpose } from "../../interface/dto/auth-verification.dto";
-import { CommandBus } from "@nestjs/cqrs";
+import { CommandBus, QueryBus } from "@nestjs/cqrs";
 import { ConfigService } from "@nestjs/config";
 import { CreateOneTimeTokenCommand } from "../command/create-one-time-token.command";
 import { SendEmailVerificationCommand } from "../command/send-email-verification.command";
 import { TokenFactory } from "./token.factory";
+import { VerifyTokenRequest } from "../../interface/dto/auth.dto";
+import { FindByHashAndPurposeQuery } from "../query/find-by-hash-and-purpose.query";
+import { BadRequestException } from "../exceptions/auth.exception";
+import { UpdateUsedAtOneTimeTokenCommand } from "../command/update-used-at-one-time-token.command";
+import { OneTimeTokenEntity } from "../../infrastructure/persistence/entities/one-time-token.entity";
 
 @Injectable()
 export class AuthVerificationService {
   constructor(
+    private readonly config: ConfigService,
     private readonly tokenFactory: TokenFactory,
     private readonly commandBus: CommandBus,
-    private readonly config: ConfigService,
+    private readonly queryBus: QueryBus,
   ) {}
 
   async issueEmailToken(params: IssueEmailTokenParams) {
@@ -41,5 +47,24 @@ export class AuthVerificationService {
     await this.commandBus.execute(
       new SendEmailVerificationCommand(payloadSendEmailVerification)
     );
+  }
+
+  async verifyToken(body: VerifyTokenRequest): Promise<OneTimeTokenEntity> {
+    const now = new Date();
+    const tokenHash = this.tokenFactory.hasher(body.token);
+    const rec = await this.queryBus.execute(
+      new FindByHashAndPurposeQuery(tokenHash, body.purpose)
+    )
+
+    if(!rec)                  throw new BadRequestException('Invalid token');
+    if(rec.used_at)           throw new BadRequestException('Invalid token');
+    if(rec.expires_at <= now) throw new BadRequestException('Expired token');
+
+    const updated = await this.commandBus.execute(
+      new UpdateUsedAtOneTimeTokenCommand(rec.id, now)
+    );
+
+    if(!updated) throw new BadRequestException('Invalid token');
+    return updated;
   }
 }

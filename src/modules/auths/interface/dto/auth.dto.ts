@@ -1,4 +1,5 @@
-import { IsNotEmpty, IsEmail } from "class-validator";
+import { IsNotEmpty, IsEmail, IsString, IsEnum } from "class-validator";
+import { EmailPurpose } from "./auth-verification.dto";
 
 export class LoginRequest {
   @IsNotEmpty()
@@ -39,4 +40,14 @@ export class RegisterResponse {
   id: string;
   name: string;
   email: string;
+}
+
+export class VerifyTokenRequest {
+  @IsNotEmpty()
+  @IsString()
+  token!: string;
+
+  @IsNotEmpty()
+  @IsEnum(EmailPurpose)
+  purpose!: EmailPurpose;
 }

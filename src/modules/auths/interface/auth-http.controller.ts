@@ -1,17 +1,19 @@
 import { Body, Controller, HttpCode, HttpStatus, Post, Res, UseFilters } from "@nestjs/common";
-import { LoginRequest, LoginTokenResponse, RegisterRequest, RegisterResponse } from "./dto/auth.dto";
+import { LoginRequest, LoginTokenResponse, RegisterRequest, RegisterResponse, VerifyTokenRequest } from "./dto/auth.dto";
 import { AuthService } from "../application/services/auth.service";
 import type { FastifyReply } from "fastify";
 import { StandardResponseDto } from "src/modules/common/dto/standard-response.dto";
 import { RefreshTokenConst } from "src/modules/common/const/token.const";
 import { RefreshTokenCookie } from "src/decorators/refresh-token-cookie.decorator";
 import { GrpcToHttpFilter } from "src/filters/grpc-to-http.filter";
+import { AuthVerificationService } from "../application/services/auth-verification.service";
 
 @Controller()
 @UseFilters(GrpcToHttpFilter)
 export class AuthHttpController {
   constructor(
     private readonly _authService: AuthService,
+    private readonly _authVerificationService: AuthVerificationService,
   ) {}
 
   @Post('login')
@@ -73,6 +75,19 @@ export class AuthHttpController {
       statusCode: 201,
       message: 'success',
       data: registeredUser,
+    }
+  }
+
+  @Post('verify-email')
+  @HttpCode(HttpStatus.OK)
+  async verifyEmail(
+    @Body() request: VerifyTokenRequest,
+  ): Promise<StandardResponseDto<void>> {
+    await this._authService.verifyEmail(request);
+
+    return {
+      statusCode: 200,
+      message: 'Email verified successfully',
     }
   }
 }

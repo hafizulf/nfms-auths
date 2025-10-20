@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package user;
+
+import "user-model.proto";
+
+message Empty {}
+message FindOneUserRequest {
+  string id = 1;
+}
+message FindUserByEmailRequest {
+  string email = 1;
+}
+message VerifyCredentialsRequest {
+  string email = 1;
+  string password = 2;
+}
+
+message RegisterUserRequest {
+  string name = 1;
+  string email = 2;
+  string password = 3;
+}
+
+message MarkEmailAsVerifiedRequest {
+  string user_id = 1;
+}
+
+service UserService {
+  rpc FindUsers(Empty) returns (FindUsersResponse) {}
+  rpc FindOneUser(FindOneUserRequest) returns (FindOneUserResponse) {}
+  rpc FindUserByEmail(FindUserByEmailRequest) returns (FindUserByEmailResponse) {}
+  rpc VerifyCredentials(VerifyCredentialsRequest) returns (VerifyCredentialsResponse) {}
+  rpc RegisterUser(RegisterUserRequest) returns (RegisterUserResponse) {}
+  rpc MarkEmailAsVerified(MarkEmailAsVerifiedRequest) returns (MarkEmailAsVerifiedResponse) {}
+}

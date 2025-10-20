@@ -1,7 +1,7 @@
 import { RegisterUserResponse, VerifyCredentialsResponse } from "src/modules/users-grpc/users.dto";
 import { Injectable } from "@nestjs/common";
 import { Observable } from "rxjs";
-import { LoginRequest, LoginTokenResponse, RegisterRequest, RegisterResponse } from "../../interface/dto/auth.dto";
+import { LoginRequest, LoginTokenResponse, RegisterRequest, RegisterResponse, VerifyTokenRequest } from "../../interface/dto/auth.dto";
 import { JWTService } from "src/modules/common/jwt/jwt.service";
 import { uuidv7 } from "uuidv7";
 import { CommandBus } from "@nestjs/cqrs";
@@ -73,5 +73,13 @@ export class AuthService {
       name: user.name,
       email: user.email,
     }
+  }
+
+  async verifyEmail(
+    body: VerifyTokenRequest,
+  ): Promise<void> {
+    const tokenUpdated = await this._authVerificationService.verifyToken(body);
+
+    await this.userGrpcService.MarkEmailAsVerified(tokenUpdated.user_id);
   }
 }
