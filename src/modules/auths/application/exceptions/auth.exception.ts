@@ -37,3 +37,9 @@ export class ConflictException extends AppException {
     super(ERROR_CODES.CONFLICT, message, HttpStatus.CONFLICT);
   }
 }
+
+export class NotFoundException extends AppException {
+  constructor(message: string) {
+    super(ERROR_CODES.NOT_FOUND, message, HttpStatus.NOT_FOUND);
+  }
+}

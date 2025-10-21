@@ -5,4 +5,5 @@ export abstract class OneTimeTokenRepository {
   abstract create(payload: CreateOneTimeToken): Promise<OneTimeTokenEntity>;
   abstract findByHashAndPurpose(token: Buffer, purpose: string): Promise<OneTimeTokenEntity | null>;
   abstract updateUsedAt(id: string, usedAt: Date): Promise<OneTimeTokenEntity | null>;
+  abstract findByUserIdAndPurpose(user_id: string, purpose: string): Promise<OneTimeTokenEntity | null>;
 }

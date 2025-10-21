@@ -22,3 +22,10 @@ export class SendEmailVerificationPayload {
   verifyUrl: string;
   expiresAt: string;
 }
+
+export enum ResendVerificationType {
+  EMAIL = 'EMAIL',
+  PHONE = 'PHONE',
+  SMS = 'SMS',
+  OTP = 'OTP',
+}

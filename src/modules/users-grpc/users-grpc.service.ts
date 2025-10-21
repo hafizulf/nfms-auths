@@ -1,7 +1,7 @@
 import { Inject, Injectable, OnModuleInit } from "@nestjs/common";
 import type { ClientGrpc } from "@nestjs/microservices";
 import { GrpcClientHelper } from "src/helpers/grpc-client.helper";
-import { RegisterUserResponse, VerifyCredentialsResponse, MarkEmailAsVerifiedResponse, MarkEmailAsVerifiedRequest } from "./users.dto";
+import { RegisterUserResponse, VerifyCredentialsResponse, MarkEmailAsVerifiedResponse, MarkEmailAsVerifiedRequest, FindUserByEmailRequest, FindUserByEmailResponse } from "./users.dto";
 import { LoginRequest, RegisterRequest } from "../auths/interface/dto/auth.dto";
 import { Observable } from "rxjs";
 
@@ -9,6 +9,7 @@ interface UsersServiceClient {
   VerifyCredentials(data: LoginRequest): Observable<VerifyCredentialsResponse>;
   RegisterUser(data: RegisterRequest): Observable<RegisterUserResponse>;
   MarkEmailAsVerified(data: MarkEmailAsVerifiedRequest): Observable<MarkEmailAsVerifiedResponse>;
+  FindUserByEmail(data: FindUserByEmailRequest): Observable<FindUserByEmailResponse>;
 }
 
 @Injectable()
@@ -35,5 +36,9 @@ export class UserGrpcService implements OnModuleInit {
 
   async MarkEmailAsVerified(user_id: string): Promise<MarkEmailAsVerifiedResponse> {
     return await this.grpc.call<MarkEmailAsVerifiedResponse>(this.userServiceName, this.users.MarkEmailAsVerified({ user_id }));
+  }
+
+  async FindUserByEmail(email: string): Promise<FindUserByEmailResponse> {
+    return await this.grpc.call<FindUserByEmailResponse>(this.userServiceName, this.users.FindUserByEmail({ email }));
   }
 }

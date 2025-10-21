@@ -41,4 +41,12 @@ implements OneTimeTokenRepository {
     if (!rec) return null;
     return OneTimeTokenMapper.fromPrisma(rec);
   }
+
+  async findByUserIdAndPurpose(user_id: string, purpose: EmailPurpose): Promise<OneTimeTokenEntity | null> {
+    const rec = await this.prisma.oneTimeToken.findFirst({
+      where: { user_id, purpose },
+    });
+    if (!rec) return null;
+    return OneTimeTokenMapper.fromPrisma(rec);
+  }
 }

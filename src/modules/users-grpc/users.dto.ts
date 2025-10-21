@@ -1,4 +1,4 @@
-import { IsUUID } from "class-validator";
+import { IsEmail, IsUUID } from "class-validator";
 
 export class Sub {
   sub: string
@@ -25,5 +25,14 @@ export class MarkEmailAsVerifiedRequest {
 }
 
 export class MarkEmailAsVerifiedResponse {
+  user: User;
+}
+
+export class FindUserByEmailRequest {
+  @IsEmail()
+  email: string;
+}
+
+export class FindUserByEmailResponse {
   user: User;
 }

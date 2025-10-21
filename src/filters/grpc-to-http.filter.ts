@@ -13,6 +13,7 @@ import {
   BadGatewayException,
   BadRequestException,
   ConflictException,
+  NotFoundException,
 } from "../modules/auths/application/exceptions/auth.exception";
 import { AppException } from 'src/modules/auths/application/exceptions/app.exception';
 
@@ -47,6 +48,8 @@ export class GrpcToHttpFilter implements ExceptionFilter {
         return new ConflictException(msg ?? 'Already exists');
 
       case status.NOT_FOUND:
+        return new NotFoundException(msg ?? 'Not found');
+
       case status.UNAUTHENTICATED:
         return new InvalidCredentialsException(msg ?? 'Invalid credentials');
 

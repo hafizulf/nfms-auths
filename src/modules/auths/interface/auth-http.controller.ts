@@ -1,5 +1,5 @@
 import { Body, Controller, HttpCode, HttpStatus, Post, Res, UseFilters } from "@nestjs/common";
-import { LoginRequest, LoginTokenResponse, RegisterRequest, RegisterResponse, VerifyTokenRequest } from "./dto/auth.dto";
+import { LoginRequest, LoginTokenResponse, RegisterRequest, RegisterResponse, ResendTokenVerificationRequest, VerifyTokenRequest } from "./dto/auth.dto";
 import { AuthService } from "../application/services/auth.service";
 import type { FastifyReply } from "fastify";
 import { StandardResponseDto } from "src/modules/common/dto/standard-response.dto";
@@ -88,6 +88,19 @@ export class AuthHttpController {
     return {
       statusCode: 200,
       message: 'Email verified successfully',
+    }
+  }
+
+  @Post('resend-verification')
+  @HttpCode(HttpStatus.OK)
+  async resendVerification(
+    @Body() request: ResendTokenVerificationRequest,
+  ): Promise<StandardResponseDto<void>> {
+    await this._authService.resendVerification(request);
+
+    return {
+      statusCode: 200,
+      message: 'Verification email sent successfully',
     }
   }
 }

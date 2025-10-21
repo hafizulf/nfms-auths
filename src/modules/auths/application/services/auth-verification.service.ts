@@ -20,8 +20,8 @@ export class AuthVerificationService {
     private readonly queryBus: QueryBus,
   ) {}
 
-  async issueEmailToken(params: IssueEmailTokenParams) {
-    const { raw, tokenHash, expiresAt } = this.tokenFactory.generate(EmailPurpose.REGISTER);
+  async issueEmailToken(params: IssueEmailTokenParams): Promise<void> {
+    const { raw, tokenHash, expiresAt } = this.tokenFactory.generate(params.purpose);
     const { user_id, email, purpose } = params;
     const payloadCreateOneTimeToken = {
       user_id,
@@ -57,7 +57,7 @@ export class AuthVerificationService {
     )
 
     if(!rec)                  throw new BadRequestException('Invalid token');
-    if(rec.used_at)           throw new BadRequestException('Invalid token');
+    if(rec.used_at)           throw new BadRequestException('Token already used');
     if(rec.expires_at <= now) throw new BadRequestException('Expired token');
 
     const updated = await this.commandBus.execute(
