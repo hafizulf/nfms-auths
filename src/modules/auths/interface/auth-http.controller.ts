@@ -6,14 +6,12 @@ import { StandardResponseDto } from "src/modules/common/dto/standard-response.dt
 import { RefreshTokenConst } from "src/modules/common/const/token.const";
 import { RefreshTokenCookie } from "src/decorators/refresh-token-cookie.decorator";
 import { GrpcToHttpFilter } from "src/filters/grpc-to-http.filter";
-import { AuthVerificationService } from "../application/services/auth-verification.service";
 
 @Controller()
 @UseFilters(GrpcToHttpFilter)
 export class AuthHttpController {
   constructor(
     private readonly _authService: AuthService,
-    private readonly _authVerificationService: AuthVerificationService,
   ) {}
 
   @Post('login')
@@ -91,16 +89,16 @@ export class AuthHttpController {
     }
   }
 
-  @Post('resend-verification')
+  @Post('token-verification')
   @HttpCode(HttpStatus.OK)
-  async resendVerification(
+  async tokenVerification(
     @Body() request: ResendTokenVerificationRequest,
   ): Promise<StandardResponseDto<void>> {
-    await this._authService.resendVerification(request);
+    await this._authService.sendTokenVerification(request);
 
     return {
       statusCode: 200,
-      message: 'Verification email sent successfully',
+      message: 'Verification token sent successfully',
     }
   }
 }

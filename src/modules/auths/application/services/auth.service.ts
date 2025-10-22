@@ -83,27 +83,34 @@ export class AuthService {
   ): Promise<void> {
     const tokenUpdated = await this._authVerificationService.verifyToken(body);
 
-    await this.userGrpcService.MarkEmailAsVerified(tokenUpdated.user_id);
+    if(body.purpose === EmailPurpose.REGISTER) {
+      await this.userGrpcService.MarkEmailAsVerified(tokenUpdated.user_id);
+    }
   }
 
-  async resendVerification(
+  async sendTokenVerification(
     body: ResendTokenVerificationRequest,
   ): Promise<void> {
+    const { type, purpose } = body;
     const data = await this.userGrpcService.FindUserByEmail(body.email);
     const user = data.user;
     const ott = await this._queryBus.execute(
-      new FindByUserIdAndPurposeQuery(user.id, EmailPurpose.REGISTER)
+      new FindByUserIdAndPurposeQuery(user.id, purpose)
     );
 
-    if(ott?.used_at !== null && user.is_email_verified) throw new BadRequestException('Email already verified');
+    if(purpose === EmailPurpose.REGISTER) {
+      if(ott?.used_at !== null && user.is_email_verified) throw new BadRequestException('Email already verified');
+    } else if(purpose === EmailPurpose.FORGOT_PASSWORD) {
+      if(!user.is_email_verified) throw new BadRequestException('Email not verified');
+    }
     if(ott?.expires_at >= new Date()) throw new BadRequestException('Verification already sent');
 
-    switch(body.type) {
+    switch(type) {
       case ResendVerificationType.EMAIL:
         const payload = {
           user_id: user.id,
           email: user.email,
-          purpose: body.purpose,
+          purpose: purpose,
         }
         await this._authVerificationService.issueEmailToken(payload);
         break;

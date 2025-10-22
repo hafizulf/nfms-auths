@@ -36,7 +36,7 @@ export class AuthVerificationService {
     const verifyUrl = this.tokenFactory.buildVerifyUrl(
       this.config.get('EMAIL_VERIFY_URL')!,
       raw,
-      EmailPurpose.REGISTER,
+      purpose,
     )
     const payloadSendEmailVerification = {
       email,
