@@ -81,3 +81,9 @@ export class ResetPasswordRequest {
   @IsString()
   password!: string;
 }
+
+export class GenerateAccessTokenResponse {
+  accessToken: string;
+  accessTokenExpiresAt: number;
+}
+

@@ -1,6 +1,7 @@
 import { CreateOneTimeTokenHandler } from "./create-one-time-token.handler";
 import { CreateTokenHandler } from "./create-token.handler";
 import { FindByHashAndPurposeHandler } from "./find-by-hash-and-purpose.handler";
+import { FindByTokenHandler } from "./find-by-token.handler";
 import { FindByUserIdAndPurposeHandler } from "./find-by-userId-and-purpose.handler";
 import { RevokeTokenHandler } from "./revoke-token.handler";
 import { SendEmailVerificationHandler } from "./send-email-verification.handler";
@@ -14,4 +15,5 @@ export const AuthHandlers = [
   FindByHashAndPurposeHandler,
   UpdateUsedAtOneTimeTokenHandler,
   FindByUserIdAndPurposeHandler,
+  FindByTokenHandler,
 ];

@@ -24,4 +24,12 @@ export class TokenRepositoryPrisma implements TokenRepository {
       data: { is_revoked: true },
     });
   }
+
+  async findByToken(token: string): Promise<TokenEntity | null> {
+    const rec = await this.prisma.token.findFirst({
+      where: { token },
+    });
+    if (!rec) return null;
+    return TokenMapper.fromPrisma(rec);
+  }
 }

@@ -1,7 +1,7 @@
 import { FindUserByEmailResponse, RegisterUserResponse, VerifyCredentialsResponse } from "src/modules/users-grpc/users.dto";
 import { Injectable } from "@nestjs/common";
 import { Observable } from "rxjs";
-import { LoginRequest, LoginTokenResponse, RegisterRequest, RegisterResponse, ResendTokenVerificationRequest, ResetPasswordRequest, VerifyTokenRequest } from "../../interface/dto/auth.dto";
+import { GenerateAccessTokenResponse, LoginRequest, LoginTokenResponse, RegisterRequest, RegisterResponse, ResendTokenVerificationRequest, ResetPasswordRequest, VerifyTokenRequest } from "../../interface/dto/auth.dto";
 import { JWTService } from "src/modules/common/jwt/jwt.service";
 import { uuidv7 } from "uuidv7";
 import { CommandBus, QueryBus } from "@nestjs/cqrs";
@@ -13,6 +13,7 @@ import { EmailPurpose, ResendVerificationType } from "../../interface/dto/auth-v
 import { BadRequestException } from "../exceptions/auth.exception";
 import { FindByUserIdAndPurposeQuery } from "../query/find-by-userId-and-purpose.query";
 import { OneTimeTokenEntity } from "../../infrastructure/persistence/entities/one-time-token.entity";
+import { FindByTokenQuery } from "../query/find-by-token.query";
 
 interface UsersServiceClient {
   VerifyCredentials(data: { email: string; password: string }): Observable<VerifyCredentialsResponse>;
@@ -142,5 +143,17 @@ export class AuthService {
 
     const data = await this.userGrpcService.ResetPassword({ user_id: verifiedRec.user_id, password });
     return data;
+  }
+
+  async generateAccessToken(refreshToken: string): Promise<GenerateAccessTokenResponse> {
+    const payload = await this._queryBus.execute(
+      new FindByTokenQuery(refreshToken)
+    );
+    const { token: accessToken, expiresAt: accessExp } =  this._jwtService.signAccess({ sub: payload.user_id });
+
+    return {
+      accessToken,
+      accessTokenExpiresAt: accessExp,
+    };
   }
 }

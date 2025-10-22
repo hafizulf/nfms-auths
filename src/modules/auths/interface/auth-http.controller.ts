@@ -1,5 +1,5 @@
 import { Body, Controller, HttpCode, HttpStatus, Post, Put, Res, UseFilters } from "@nestjs/common";
-import { ForgotPasswordRequest, LoginRequest, LoginTokenResponse, RegisterRequest, RegisterResponse, ResendTokenVerificationRequest, ResetPasswordRequest, VerifyTokenRequest } from "./dto/auth.dto";
+import { ForgotPasswordRequest, GenerateAccessTokenResponse, LoginRequest, LoginTokenResponse, RegisterRequest, RegisterResponse, ResendTokenVerificationRequest, ResetPasswordRequest, VerifyTokenRequest } from "./dto/auth.dto";
 import { AuthService } from "../application/services/auth.service";
 import type { FastifyReply } from "fastify";
 import { StandardResponseDto } from "src/modules/common/dto/standard-response.dto";
@@ -127,6 +127,23 @@ export class AuthHttpController {
       statusCode: 200,
       message: 'Password reset successfully',
       data,
+    }
+  }
+
+  @Post('access-token')
+  @HttpCode(HttpStatus.OK)
+  async generateAccessToken(
+    @RefreshTokenCookie(true) refreshToken: string,
+  ): Promise<StandardResponseDto<GenerateAccessTokenResponse>> {
+    const { accessToken, accessTokenExpiresAt } = await this._authService.generateAccessToken(refreshToken);
+
+    return {
+      statusCode: 200,
+      message: 'success',
+      data: {
+        accessToken,
+        accessTokenExpiresAt,
+      }
     }
   }
 }
