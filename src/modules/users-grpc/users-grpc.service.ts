@@ -2,7 +2,7 @@ import { Inject, Injectable, OnModuleInit } from "@nestjs/common";
 import type { ClientGrpc } from "@nestjs/microservices";
 import { GrpcClientHelper } from "src/helpers/grpc-client.helper";
 import { RegisterUserResponse, VerifyCredentialsResponse, MarkEmailAsVerifiedResponse, MarkEmailAsVerifiedRequest, FindUserByEmailRequest, FindUserByEmailResponse } from "./users.dto";
-import { LoginRequest, RegisterRequest } from "../auths/interface/dto/auth.dto";
+import { LoginRequest, RegisterRequest, ResetPasswordRequest } from "../auths/interface/dto/auth.dto";
 import { Observable } from "rxjs";
 
 interface UsersServiceClient {
@@ -10,6 +10,7 @@ interface UsersServiceClient {
   RegisterUser(data: RegisterRequest): Observable<RegisterUserResponse>;
   MarkEmailAsVerified(data: MarkEmailAsVerifiedRequest): Observable<MarkEmailAsVerifiedResponse>;
   FindUserByEmail(data: FindUserByEmailRequest): Observable<FindUserByEmailResponse>;
+  ResetPassword(data: { user_id: string; password: string }): Observable<FindUserByEmailResponse>;
 }
 
 @Injectable()
@@ -40,5 +41,9 @@ export class UserGrpcService implements OnModuleInit {
 
   async FindUserByEmail(email: string): Promise<FindUserByEmailResponse> {
     return await this.grpc.call<FindUserByEmailResponse>(this.userServiceName, this.users.FindUserByEmail({ email }));
+  }
+
+  async ResetPassword(data: { user_id: string; password: string }): Promise<FindUserByEmailResponse> {
+    return await this.grpc.call<FindUserByEmailResponse>(this.userServiceName, this.users.ResetPassword(data));
   }
 }

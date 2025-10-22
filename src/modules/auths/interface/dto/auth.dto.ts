@@ -65,3 +65,19 @@ export class ResendTokenVerificationRequest {
   @IsEnum(EmailPurpose)
   purpose!: EmailPurpose;
 }
+
+export class ForgotPasswordRequest {
+  @IsNotEmpty()
+  @IsEmail()
+  email!: string;
+}
+
+export class ResetPasswordRequest {
+  @IsNotEmpty()
+  @IsString()
+  token!: string;
+
+  @IsNotEmpty()
+  @IsString()
+  password!: string;
+}

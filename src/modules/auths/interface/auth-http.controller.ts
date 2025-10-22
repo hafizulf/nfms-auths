@@ -1,11 +1,12 @@
-import { Body, Controller, HttpCode, HttpStatus, Post, Res, UseFilters } from "@nestjs/common";
-import { LoginRequest, LoginTokenResponse, RegisterRequest, RegisterResponse, ResendTokenVerificationRequest, VerifyTokenRequest } from "./dto/auth.dto";
+import { Body, Controller, HttpCode, HttpStatus, Post, Put, Res, UseFilters } from "@nestjs/common";
+import { ForgotPasswordRequest, LoginRequest, LoginTokenResponse, RegisterRequest, RegisterResponse, ResendTokenVerificationRequest, ResetPasswordRequest, VerifyTokenRequest } from "./dto/auth.dto";
 import { AuthService } from "../application/services/auth.service";
 import type { FastifyReply } from "fastify";
 import { StandardResponseDto } from "src/modules/common/dto/standard-response.dto";
 import { RefreshTokenConst } from "src/modules/common/const/token.const";
 import { RefreshTokenCookie } from "src/decorators/refresh-token-cookie.decorator";
 import { GrpcToHttpFilter } from "src/filters/grpc-to-http.filter";
+import { FindUserByEmailResponse } from "src/modules/users-grpc/users.dto";
 
 @Controller()
 @UseFilters(GrpcToHttpFilter)
@@ -99,6 +100,33 @@ export class AuthHttpController {
     return {
       statusCode: 200,
       message: 'Verification token sent successfully',
+    }
+  }
+
+  @Post('forgot-password')
+  @HttpCode(HttpStatus.OK)
+  async forgotPassword(
+    @Body() request: ForgotPasswordRequest,
+  ): Promise<StandardResponseDto<void>> {
+    await this._authService.forgotPassword(request.email);
+
+    return {  
+      statusCode: 200,
+      message: 'Verification token sent successfully',
+    }
+  }
+
+  @Put('reset-password')
+  @HttpCode(HttpStatus.OK)
+  async resetPassword(
+    @Body() request: ResetPasswordRequest,
+  ): Promise<StandardResponseDto<FindUserByEmailResponse>> {
+    const data = await this._authService.resetPassword(request);
+
+    return {
+      statusCode: 200,
+      message: 'Password reset successfully',
+      data,
     }
   }
 }

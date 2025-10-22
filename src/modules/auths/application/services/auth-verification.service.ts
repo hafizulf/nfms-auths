@@ -33,8 +33,11 @@ export class AuthVerificationService {
       new CreateOneTimeTokenCommand(payloadCreateOneTimeToken)
     );
 
+    const baseUrl = purpose === EmailPurpose.REGISTER 
+      ? this.config.get('EMAIL_REGISTER_URL')! 
+      : this.config.get('EMAIL_FORGOT_PASSWORD_URL')!
     const verifyUrl = this.tokenFactory.buildVerifyUrl(
-      this.config.get('EMAIL_VERIFY_URL')!,
+      baseUrl,
       raw,
       purpose,
     )

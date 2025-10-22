@@ -1,7 +1,7 @@
-import { RegisterUserResponse, VerifyCredentialsResponse } from "src/modules/users-grpc/users.dto";
+import { FindUserByEmailResponse, RegisterUserResponse, VerifyCredentialsResponse } from "src/modules/users-grpc/users.dto";
 import { Injectable } from "@nestjs/common";
 import { Observable } from "rxjs";
-import { LoginRequest, LoginTokenResponse, RegisterRequest, RegisterResponse, ResendTokenVerificationRequest, VerifyTokenRequest } from "../../interface/dto/auth.dto";
+import { LoginRequest, LoginTokenResponse, RegisterRequest, RegisterResponse, ResendTokenVerificationRequest, ResetPasswordRequest, VerifyTokenRequest } from "../../interface/dto/auth.dto";
 import { JWTService } from "src/modules/common/jwt/jwt.service";
 import { uuidv7 } from "uuidv7";
 import { CommandBus, QueryBus } from "@nestjs/cqrs";
@@ -12,6 +12,7 @@ import { AuthVerificationService } from "./auth-verification.service";
 import { EmailPurpose, ResendVerificationType } from "../../interface/dto/auth-verification.dto";
 import { BadRequestException } from "../exceptions/auth.exception";
 import { FindByUserIdAndPurposeQuery } from "../query/find-by-userId-and-purpose.query";
+import { OneTimeTokenEntity } from "../../infrastructure/persistence/entities/one-time-token.entity";
 
 interface UsersServiceClient {
   VerifyCredentials(data: { email: string; password: string }): Observable<VerifyCredentialsResponse>;
@@ -80,12 +81,14 @@ export class AuthService {
 
   async verifyEmail(
     body: VerifyTokenRequest,
-  ): Promise<void> {
-    const tokenUpdated = await this._authVerificationService.verifyToken(body);
+  ): Promise<OneTimeTokenEntity> {
+    const verifiedRec = await this._authVerificationService.verifyToken(body);
 
     if(body.purpose === EmailPurpose.REGISTER) {
-      await this.userGrpcService.MarkEmailAsVerified(tokenUpdated.user_id);
+      await this.userGrpcService.MarkEmailAsVerified(verifiedRec.user_id);
     }
+
+    return verifiedRec;
   }
 
   async sendTokenVerification(
@@ -115,5 +118,29 @@ export class AuthService {
         await this._authVerificationService.issueEmailToken(payload);
         break;
     }
+  }
+
+  async forgotPassword(email: string): Promise<void> {
+    const data = await this.userGrpcService.FindUserByEmail(email);
+    const user = data.user;
+    const payload = {
+      user_id: user.id,
+      email: user.email,
+      purpose: EmailPurpose.FORGOT_PASSWORD,
+    }
+    await this._authVerificationService.issueEmailToken(payload);
+  }
+
+  async resetPassword(
+    body: ResetPasswordRequest,
+  ): Promise<FindUserByEmailResponse> {
+    const { token, password } = body;
+    const verifiedRec = await this.verifyEmail({
+      token,
+      purpose: EmailPurpose.FORGOT_PASSWORD,
+    });
+
+    const data = await this.userGrpcService.ResetPassword({ user_id: verifiedRec.user_id, password });
+    return data;
   }
 }
