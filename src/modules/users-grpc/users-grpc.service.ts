@@ -2,7 +2,7 @@ import { Inject, Injectable, OnModuleInit } from "@nestjs/common";
 import type { ClientGrpc } from "@nestjs/microservices";
 import { GrpcClientHelper } from "src/helpers/grpc-client.helper";
 import { RegisterUserResponse, VerifyCredentialsResponse, MarkEmailAsVerifiedResponse, MarkEmailAsVerifiedRequest, FindUserByEmailRequest, FindUserByEmailResponse } from "./users.dto";
-import { LoginRequest, RegisterRequest, ResetPasswordRequest } from "../auths/interface/dto/auth.dto";
+import { LoginRequest, RegisterRequest } from "../auths/interface/dto/auth.dto";
 import { Observable } from "rxjs";
 
 interface UsersServiceClient {

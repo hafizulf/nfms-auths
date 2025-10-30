@@ -1,4 +1,4 @@
-import { FindUserByEmailResponse, RegisterUserResponse, VerifyCredentialsResponse } from "src/modules/users-grpc/users.dto";
+import { FindUserByEmailResponse } from "src/modules/users-grpc/users.dto";
 import { Injectable } from "@nestjs/common";
 import { Observable } from "rxjs";
 import { GenerateAccessTokenResponse, LoginRequest, LoginTokenResponse, RegisterRequest, RegisterResponse, ResendTokenVerificationRequest, ResetPasswordRequest, VerifyTokenRequest } from "../../interface/dto/auth.dto";
@@ -14,11 +14,6 @@ import { BadRequestException } from "../exceptions/auth.exception";
 import { FindByUserIdAndPurposeQuery } from "../query/find-by-userId-and-purpose.query";
 import { OneTimeTokenEntity } from "../../infrastructure/persistence/entities/one-time-token.entity";
 import { FindByTokenQuery } from "../query/find-by-token.query";
-
-interface UsersServiceClient {
-  VerifyCredentials(data: { email: string; password: string }): Observable<VerifyCredentialsResponse>;
-  RegisterUser(data: RegisterRequest): Observable<RegisterUserResponse>;
-}
 
 @Injectable()
 export class AuthService {
