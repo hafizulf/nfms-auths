@@ -1,5 +1,5 @@
 import { FindUserByEmailResponse } from "src/modules/users-grpc/users.dto";
-import { Injectable } from "@nestjs/common";
+import { Injectable, UnauthorizedException } from "@nestjs/common";
 import { Observable } from "rxjs";
 import { GenerateAccessTokenResponse, LoginRequest, LoginTokenResponse, RegisterRequest, RegisterResponse, ResendTokenVerificationRequest, ResetPasswordRequest, VerifyTokenRequest } from "../../interface/dto/auth.dto";
 import { JWTService } from "src/modules/common/jwt/jwt.service";
@@ -30,8 +30,9 @@ export class AuthService {
   ): Promise<LoginTokenResponse> {
     const data = await this.userGrpcService.VerifyCredentials(body);
     const userData = data.user;
-    const { token: accessToken, expiresAt: accessExp } =  this._jwtService.signAccess({ sub: userData.sub });
-    const { token: refreshToken, expiresAt: refreshExp } = this._jwtService.signRefresh({ sub: userData.sub });
+    const { token: accessToken, expiresAt: accessExp } = await this._jwtService.signAccess({ sub: userData.sub });
+    const { token: refreshToken, expiresAt: refreshExp } = await this._jwtService.signRefresh({ sub: userData.sub });
+
     const payload = {
       id: uuidv7(),
       user_id: userData.sub,
@@ -141,10 +142,17 @@ export class AuthService {
   }
 
   async generateAccessToken(refreshToken: string): Promise<GenerateAccessTokenResponse> {
-    const payload = await this._queryBus.execute(
-      new FindByTokenQuery(refreshToken)
-    );
-    const { token: accessToken, expiresAt: accessExp } =  this._jwtService.signAccess({ sub: payload.user_id });
+    const rt = await this._jwtService.verifyRefresh<{ sub: string }>(refreshToken);
+    
+    const stored = await this._queryBus.execute(new FindByTokenQuery(refreshToken));
+    if (!stored || stored.is_revoked || stored.user_id !== rt.sub) {
+      throw new UnauthorizedException('Invalid or revoked refresh token');
+    }
+
+    const { 
+      token: accessToken,
+      expiresAt: accessExp 
+    } = await this._jwtService.signAccess({ sub: rt.sub });
 
     return {
       accessToken,

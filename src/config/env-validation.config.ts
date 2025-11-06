@@ -18,6 +18,10 @@ export const EnvValidationSchema = z.object({
   JWT_EXPIRATION_TIME: z.string(),
   JWT_REFRESH_SECRET: z.string(),
   JWT_REFRESH_EXPIRATION_TIME: z.string(),
+  JWT_ISSUER: z.string(),
+  JWT_AUDIENCE: z.string(),
+  JWT_PRIVATE_KEY_PATH: z.string(),
+  JWT_PUBLIC_KEY_PATH: z.string(),
 
   EMAIL_REGISTER_URL: z.string(),
   EMAIL_FORGOT_PASSWORD_URL: z.string(),
